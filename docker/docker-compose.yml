@@ -1,0 +1,116 @@
+# Roxy-WI Docker Compose Configuration
+#
+# Usage:
+#   1. Copy .env.example to .env and configure
+#   2. docker compose -f docker/docker-compose.yml up -d
+#
+# Default: SQLite mode (no external database required)
+# To enable MySQL: Uncomment the Database service and depends_on sections
+#
+# Default credentials:
+#   Username: admin
+#   Password: admin
+
+name: '${STACK_NAME:-stk-roxy-wi-001}'
+
+networks:
+  EXTERNAL:
+    name: ROXY-WI-EXTERNAL
+    driver: bridge
+    internal: false
+    attachable: true
+
+  # Uncomment INTERNAL network when using MySQL
+  # INTERNAL:
+  #   name: ROXY-WI-INTERNAL
+  #   driver: bridge
+  #   internal: true
+  #   attachable: true
+
+services:
+  # ============================================================================
+  # MySQL Database Service (Optional)
+  # Uncomment this section to use MySQL instead of SQLite
+  # ============================================================================
+  # Database:
+  #   image: '${DATABASE_IMAGENAME:-mysql}:${DATABASE_IMAGEVERSION:-8.0}'
+  #   container_name: ROXY-WI-DB-001
+  #   hostname: ROXY-WI-DB-001
+  #   restart: unless-stopped
+  #   stop_signal: SIGTERM
+  #   stop_grace_period: 90s
+  #   user: '${UID:-0}:${GID:-0}'
+  #   logging:
+  #     driver: 'local'
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DATABASE_ROOT_PASSWORD:-roxywi}"]
+  #     start_period: 30s
+  #     interval: 15s
+  #     retries: 5
+  #     timeout: 5s
+  #   networks:
+  #     INTERNAL:
+  #   expose:
+  #     - "${DATABASE_PORT:-3306}"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: '${DATABASE_ROOT_PASSWORD:-roxywi}'
+  #     MYSQL_DATABASE: '${DATABASE_NAME:-roxywi}'
+  #     MYSQL_USER: '${DATABASE_USER:-roxy-wi}'
+  #     MYSQL_PASSWORD: '${DATABASE_PASSWORD:-roxy-wi}'
+  #   volumes:
+  #     - /etc/timezone:/etc/timezone:ro
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - "/${STACK_BINDMOUNTROOT}/${STACK_NAME}/Database/Data:/var/lib/mysql:rw"
+  #   labels:
+  #     com.centurylinklabs.watchtower.enable: ${DATABASE_ENABLEAUTOMATICUPDATES:-false}
+
+  Application:
+    image: '${APPLICATION_IMAGENAME:-roxy-wi/roxy-wi}:${APPLICATION_IMAGEVERSION:-latest}'
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ROXY-WI-APP-001
+    hostname: ROXY-WI-APP-001
+    restart: unless-stopped
+    stop_signal: SIGTERM
+    stop_grace_period: 90s
+    logging:
+      driver: 'local'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/api/health"]
+      start_period: 60s
+      interval: 30s
+      retries: 3
+      timeout: 10s
+    environment:
+      TZ: '${TZ:-America/New_York}'
+      # SQLite mode (default) - set to 0 to use embedded SQLite
+      ROXY_WI_MYSQL_ENABLE: '${APPLICATION_MYSQL_ENABLE:-0}'
+      # Uncomment below when using MySQL
+      # ROXY_WI_MYSQL_HOST: '${DATABASE_HOST:-ROXY-WI-DB-001}'
+      # ROXY_WI_MYSQL_PORT: '${DATABASE_PORT:-3306}'
+      # ROXY_WI_MYSQL_USER: '${DATABASE_USER:-roxy-wi}'
+      # ROXY_WI_MYSQL_PASSWORD: '${DATABASE_PASSWORD:-roxy-wi}'
+      # ROXY_WI_MYSQL_DB: '${DATABASE_NAME:-roxywi}'
+      ROXY_WI_SECRET_PHRASE: '${APPLICATION_SECRET_PHRASE:-}'
+    networks:
+      EXTERNAL:
+      # Uncomment INTERNAL when using MySQL
+      # INTERNAL:
+    ports:
+      - "${SERVICE_BIND_ADDRESS_EXTERNAL:-0.0.0.0}:${APPLICATION_PORT_EXTERNAL:-8080}:80"
+    dns:
+      - '${DNSSERVER:-1.1.1.1}'
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - "/${STACK_BINDMOUNTROOT}/${STACK_NAME}/Application/Data:/var/lib/roxy-wi:rw"
+      - "/${STACK_BINDMOUNTROOT}/${STACK_NAME}/Application/Logs:/var/log/roxy-wi:rw"
+      - "/${STACK_BINDMOUNTROOT}/${STACK_NAME}/Application/Config:/etc/roxy-wi:rw"
+    # Uncomment depends_on when using MySQL
+    # depends_on:
+    #   Database:
+    #     condition: service_healthy
+    labels:
+      com.centurylinklabs.watchtower.enable: ${APPLICATION_ENABLEAUTOMATICUPDATES:-false}
+
