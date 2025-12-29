@@ -1,5 +1,17 @@
 # ![alt text](https://roxy-wi.org/static/images/logo_menu.png "Logo")
-Web interface (user-friendly web GUI, alerting, monitoring, and secure) for managing HAProxy, Nginx, and Keepalived servers. Leave your [feedback](https://github.com/hap-wi/roxy-wi/issues)
+
+**Roxy-WI** is a powerful web-based frontend management platform for **HAProxy**, **Nginx**, **Apache**, and **Keepalived**. It provides a centralized control panel to configure, monitor, and coordinate load balancing and high-availability failover across multiple local or remote servers.
+
+Whether you're managing a single node or orchestrating dozens of load balancers across your infrastructure, Roxy-WI gives you:
+
+- **Unified Management** — Configure and push changes to all your HAProxy, Nginx, Apache, and Keepalived instances from a single web interface
+- **Multi-Node Coordination** — Manage local and remote servers via SSH, keeping configurations synchronized across your entire cluster
+- **Load Balancing Control** — Add, edit, or remove backend servers dynamically; enable/disable nodes without service restarts
+- **High Availability** — Coordinate failover with Keepalived VIPs, monitor service health, and get alerted on state changes
+- **Real-Time Monitoring** — View server status, analyze logs, track metrics, and visualize traffic flows from one dashboard
+- **Secure Access** — Role-based access control, LDAP integration, and SSH key management for secure multi-user environments
+
+Leave your [feedback](https://github.com/hap-wi/roxy-wi/issues)
 
 # Get involved
 * [Telegram Channel](https://t.me/roxy_wi_channel) about Roxy-WI, talks and questions are welcome
