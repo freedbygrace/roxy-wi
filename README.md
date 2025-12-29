@@ -11,7 +11,7 @@ Whether you're managing a single node or orchestrating dozens of load balancers 
 - **Real-Time Monitoring** — View server status, analyze logs, track metrics, and visualize traffic flows from one dashboard
 - **Secure Access** — Role-based access control, LDAP integration, and SSH key management for secure multi-user environments
 
-Leave your [feedback](https://github.com/hap-wi/roxy-wi/issues)
+Leave your [feedback](https://github.com/freedbygrace/roxy-wi/issues)
 
 # Get involved
 * [Telegram Channel](https://t.me/roxy_wi_channel) about Roxy-WI, talks and questions are welcome
@@ -72,7 +72,7 @@ The easiest way to get started is with Docker. Default configuration uses SQLite
 
 ```bash
 # Clone the repository
-git clone https://github.com/hap-wi/roxy-wi.git
+git clone https://github.com/freedbygrace/roxy-wi.git
 cd roxy-wi
 
 # Create environment file
