@@ -72,7 +72,7 @@ The easiest way to get started is with Docker. Default configuration uses SQLite
 
 ```bash
 # Clone the repository
-git clone https://github.com/freedbygrace/roxy-wi.git
+git clone -b DockerEnhancements https://github.com/freedbygrace/roxy-wi.git
 cd roxy-wi
 
 # Create environment file
