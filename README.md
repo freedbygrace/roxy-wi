@@ -64,6 +64,123 @@ Leave your [feedback](https://github.com/hap-wi/roxy-wi/issues)
 
 # Install
 
+## Docker (Recommended)
+
+The easiest way to get started is with Docker. Default configuration uses SQLite (no external database required).
+
+### Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/hap-wi/roxy-wi.git
+cd roxy-wi
+
+# Create environment file
+cp docker/.env.example docker/.env
+
+# Start the application
+docker compose -f docker/docker-compose.yml up -d
+```
+
+Access Roxy-WI at `http://localhost:8080` (default credentials: `admin` / `admin`)
+
+### Docker Compose Example
+
+```yaml
+name: 'roxy-wi'
+
+networks:
+  EXTERNAL:
+    name: ROXY-WI-EXTERNAL
+    driver: bridge
+
+services:
+  Application:
+    image: 'roxy-wi/roxy-wi:latest'
+    container_name: ROXY-WI-APP-001
+    hostname: ROXY-WI-APP-001
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/api/health"]
+      start_period: 60s
+      interval: 30s
+      retries: 3
+      timeout: 10s
+    environment:
+      TZ: 'America/New_York'
+      ROXY_WI_MYSQL_ENABLE: '0'
+      ROXY_WI_SECRET_PHRASE: ''
+    networks:
+      EXTERNAL:
+    ports:
+      - "8080:80"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - "./data:/var/lib/roxy-wi:rw"
+      - "./logs:/var/log/roxy-wi:rw"
+      - "./config:/etc/roxy-wi:rw"
+```
+
+### Environment Variables (.env)
+
+```bash
+# Stack Configuration
+STACK_NAME=stk-roxy-wi-001
+STACK_BINDMOUNTROOT=custom/docker/stacks
+TZ=America/New_York
+DNSSERVER=1.1.1.1
+
+# Application
+APPLICATION_IMAGENAME=roxy-wi/roxy-wi
+APPLICATION_IMAGEVERSION=latest
+APPLICATION_PORT_EXTERNAL=8080
+APPLICATION_MYSQL_ENABLE=0
+# Leave empty to auto-generate, or set a custom 32-char base64 secret
+APPLICATION_SECRET_PHRASE=
+```
+
+### Building the Image Locally
+
+```bash
+# Build for local use
+docker build -t roxy-wi/roxy-wi:latest -f docker/Dockerfile .
+
+# Build with custom tag
+docker build -t myrepo/roxy-wi:2024.12.29.1200 -f docker/Dockerfile .
+```
+
+### Building and Pushing to DockerHub
+
+Use the included build script for multi-platform builds with automatic tagging:
+
+```bash
+# Set DockerHub credentials
+export DOCKERHUB_USERNAME=your-username
+export DOCKERHUB_TOKEN=your-access-token
+
+# Build and push (creates 'latest' and 'yyyy.mm.dd.hhmm' tags)
+./scripts/docker-build-push.sh --repo your-username/roxy-wi
+
+# Build only (no push)
+./scripts/docker-build-push.sh --no-push
+
+# Custom platform
+./scripts/docker-build-push.sh --platform linux/amd64
+```
+
+Manual push example:
+
+```bash
+# Tag and push
+docker tag roxy-wi/roxy-wi:latest your-username/roxy-wi:latest
+docker tag roxy-wi/roxy-wi:latest your-username/roxy-wi:2024.12.29.1200
+docker push your-username/roxy-wi:latest
+docker push your-username/roxy-wi:2024.12.29.1200
+```
+
+For detailed Docker deployment instructions, see [docs/DOCKER.md](docs/DOCKER.md).
+
 ## RPM
 
 ### Read instruction on the official [site](https://roxy-wi.org/installation#rpm)
